@@ -27,16 +27,16 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 	public void onApplicationEvent(ApplicationReadyEvent event) 
 	{
 		Flux<MessageDTO> receiveAll =
-				serverWebSocketHandler
-					.receive()
-					.subscribeOn(Schedulers.elastic())
-					.doOnNext(message -> logger.info("Received: [{}]", message.getValue()));				
+			serverWebSocketHandler
+				.receive()
+				.subscribeOn(Schedulers.elastic())
+				.doOnNext(message -> logger.info("Received: [{}]", message.getValue()));
 		
 		Mono<MessageDTO> receiveFirst =
-				serverWebSocketHandler				
-					.receive()
-					.subscribeOn(Schedulers.elastic())
-					.next();
+			serverWebSocketHandler
+				.receive()
+				.subscribeOn(Schedulers.elastic())
+				.next();
 		
 		Flux<MessageDTO> send =
 			Flux
@@ -45,6 +45,10 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 				.map(interval -> new MessageDTO(interval))
 				.doOnNext(dto -> logger.info("Sent: [{}]", dto.getValue()))
 				.doOnNext(dto -> serverWebSocketHandler.send(dto));
+		
+		serverWebSocketHandler
+			.connected()
+			.subscribe(value -> logger.info("Client connected."));
 		
 		receiveAll.subscribe();
 		receiveFirst.thenMany(send).subscribe();

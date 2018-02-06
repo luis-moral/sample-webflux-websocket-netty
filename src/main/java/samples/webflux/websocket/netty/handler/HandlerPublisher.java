@@ -34,11 +34,10 @@ public class HandlerPublisher<T> implements Publisher<T>
 		}
 	}
 	
-	public void complete(T data)
+	public void complete()
 	{
 		if (subscriber != null)
 		{
-			subscriber.onNext(data);
 			subscriber.onComplete();
 		}
 	}

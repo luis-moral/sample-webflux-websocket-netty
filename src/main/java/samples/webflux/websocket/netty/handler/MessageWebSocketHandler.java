@@ -20,7 +20,7 @@ public class MessageWebSocketHandler implements WebSocketHandler
 	private final HandlerPublisher<MessageDTO> receivePublisher;
 	private final Flux<MessageDTO> receiveFlux;
 	private final HandlerPublisher<String> connectedPublisher;
-	private final Mono<String> connectedMono;
+	private final Flux<String> connectedFlux;
 	
 	private WebSocketSession session;
 	
@@ -32,7 +32,7 @@ public class MessageWebSocketHandler implements WebSocketHandler
 		receiveFlux = Flux.from(receivePublisher).cache(50);
 		
 		connectedPublisher = new HandlerPublisher<String>();
-		connectedMono = Mono.from(connectedPublisher).cache();
+		connectedFlux = Flux.from(connectedPublisher).cache(1);
 	}
 	
 	@Override
@@ -50,21 +50,24 @@ public class MessageWebSocketHandler implements WebSocketHandler
 				.map(this::toMessageDTO)
 				.doOnNext(receivePublisher::publish);
 		
-		connectedPublisher.complete(session.getId());
+		Mono<Void> connected = 
+			Mono
+				.fromRunnable(() -> connectedPublisher.publish(session.getId()));		
 		
-		return receive.then();
+		return connected.thenMany(receive).then();
 	}
 	
-	public Mono<String> connected()
+	public Flux<String> connected()
 	{
-		return connectedMono;
+		return connectedFlux;
 	}
 	
 	public void disconnect()
 	{
 		if (session != null)
 		{
-			session.close();
+			session.close();			
+			session = null;
 		}
 	}
 	

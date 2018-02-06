@@ -48,14 +48,15 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 		
 		webSocketClient
 			.execute(uri, clientWebSocketHandler)
-			.subscribeOn(Schedulers.elastic())			
+			.doOnError(t -> logger.error(t.getLocalizedMessage(), t))
+			.subscribeOn(Schedulers.elastic())
 			.subscribe();
 		
 		clientWebSocketHandler
 			.connected()
 			.doOnNext(id -> logger.info("Connected [{}]", id))
 			.doOnNext(value -> clientWebSocketHandler.send(new MessageDTO(0)))
-			.block();
+			.blockFirst();
 		
 		clientWebSocketHandler
 			.receive()
