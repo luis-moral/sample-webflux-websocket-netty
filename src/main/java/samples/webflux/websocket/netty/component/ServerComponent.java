@@ -42,9 +42,10 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 			Flux
 				.interval(Duration.ofMillis(500))
 				.subscribeOn(Schedulers.elastic())
-				.map(interval -> new MessageDTO(interval))
-				.doOnNext(dto -> logger.info("Server Sent: [{}]", dto.getValue()))
-				.doOnNext(dto -> serverWebSocketHandler.send(dto));
+				.takeUntil(value -> !serverWebSocketHandler.isConnected())
+				.map(interval -> new MessageDTO(interval))				
+				.doOnNext(dto -> serverWebSocketHandler.send(dto))
+				.doOnNext(dto -> logger.info("Server Sent: [{}]", dto.getValue()));
 		
 		serverWebSocketHandler
 			.connected()

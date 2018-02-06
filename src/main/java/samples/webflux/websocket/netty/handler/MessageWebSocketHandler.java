@@ -1,5 +1,7 @@
 package samples.webflux.websocket.netty.handler;
 
+import java.nio.channels.ClosedChannelException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -10,19 +12,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 public class MessageWebSocketHandler implements WebSocketHandler
 {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private final ObjectMapper objectMapper;	
+	private final ObjectMapper objectMapper;
 	private final HandlerPublisher<MessageDTO> receivePublisher;
 	private final Flux<MessageDTO> receiveFlux;
 	private final HandlerPublisher<String> connectedPublisher;
 	private final Flux<String> connectedFlux;
 	
 	private WebSocketSession session;
+	private boolean webSocketConnected;
 	
 	public MessageWebSocketHandler(ObjectMapper objectMapper)
 	{
@@ -38,21 +40,22 @@ public class MessageWebSocketHandler implements WebSocketHandler
 	@Override
 	public Mono<Void> handle(WebSocketSession session) 
 	{
-		disconnect();
-		
-		this.session = session;
+		this.session = session;		
 		
 		Flux<MessageDTO> receive =
 			session
 				.receive()
-				.subscribeOn(Schedulers.elastic())
-				.doOnError(t -> logger.error(t.getLocalizedMessage(), t))
+				.doOnError(t -> logger.error(t.getLocalizedMessage(), t))				
 				.map(this::toMessageDTO)
 				.doOnNext(receivePublisher::publish);
 		
-		Mono<Void> connected = 
+		Mono<Object> connected = 
 			Mono
-				.fromRunnable(() -> connectedPublisher.publish(session.getId()));		
+				.fromRunnable(() ->
+				{
+					webSocketConnected = true;
+					connectedPublisher.publish(session.getId());					
+				});				
 		
 		return connected.thenMany(receive).then();
 	}
@@ -62,13 +65,9 @@ public class MessageWebSocketHandler implements WebSocketHandler
 		return connectedFlux;
 	}
 	
-	public void disconnect()
+	public boolean isConnected()
 	{
-		if (session != null)
-		{
-			session.close();
-			session = null;
-		}
+		return webSocketConnected;
 	}
 	
 	public Flux<MessageDTO> receive()
@@ -77,8 +76,20 @@ public class MessageWebSocketHandler implements WebSocketHandler
 	}
 	
 	public void send(MessageDTO message)
+	{		
+		session
+			.send(Mono.just(toWebSocketMessage(message)))
+			.doOnError(ClosedChannelException.class, this::webSocketChannelClosed)
+			.onErrorResume(ClosedChannelException.class, t -> Mono.empty())
+			.doOnError(t -> logger.error(t.getLocalizedMessage(), t))
+			.block();
+	}
+	
+	private void webSocketChannelClosed(ClosedChannelException exception)
 	{
-		session.send(Mono.just(toWebSocketMessage(message))).block();
+		logger.info("WebSocket disconnected.");
+		
+		webSocketConnected = false;
 	}
 	
 	private MessageDTO toMessageDTO(WebSocketMessage message)

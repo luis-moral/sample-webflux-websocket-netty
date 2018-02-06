@@ -55,11 +55,11 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 			throw new IllegalArgumentException(USe);
 		}
 		
-		webSocketClient
-			.execute(uri, clientWebSocketHandler)
-			.doOnError(t -> logger.error(t.getLocalizedMessage(), t))
-			.subscribeOn(Schedulers.elastic())
-			.subscribe();
+		Disposable clientConnection = 		
+			webSocketClient
+				.execute(uri, clientWebSocketHandler)
+				.subscribeOn(Schedulers.elastic())
+				.subscribe();
 		
 		clientWebSocketHandler
 			.connected()
@@ -68,18 +68,18 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 			.doOnNext(message -> clientWebSocketHandler.send(message))
 			.doOnNext(message -> logger.info("Client Sent: [{}]", message.getValue()))
 			.blockFirst();
-		
-		Disposable receiveSubscription =
-			clientWebSocketHandler
+				
+		clientWebSocketHandler
 			.receive()
 			.subscribeOn(Schedulers.elastic())
 			.subscribe(message -> logger.info("Client Received: [{}]", message.getValue()));		
 		
 		Mono
-			.delay(Duration.ofSeconds(1))
-			.doOnNext(value -> receiveSubscription.dispose())
-			.doOnNext(value -> clientWebSocketHandler.disconnect())
+			.delay(Duration.ofSeconds(5))			
+			.doOnNext(value -> clientConnection.dispose())
+			.doOnNext(value -> logger.info("Disconnected."))
 			.then(Mono.delay(Duration.ofMillis(500)))
-			.subscribe(value -> SpringApplication.exit(applicationContext, () -> 0));
+			.map(value -> SpringApplication.exit(applicationContext, () -> 0))
+			.subscribe(exitValue -> System.exit(exitValue));
 	}
 }
