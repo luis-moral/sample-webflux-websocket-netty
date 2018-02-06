@@ -1,14 +1,14 @@
-#Spring Boot 2.0 WebFlux Reactive WebSocket client and server
+# Spring Boot 2.0 WebFlux Reactive WebSocket client and server
 
 Sample project using **spring-boot-webflux** with **reactor-netty** reactive websocket client and server. The target of the sample is provide a sample on how to directly use WebSocketHandler handle method to receive the messages and publish them to a Flux which the business logic can consume an process as needed. 
 
 [Official documentation](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-websocket)
 
-##Run
+## Run
 
 To run the sample just execute `gradlew bootRun`.
 
-##Message
+## Message
 
 The messages exchanged are JSON:
 
@@ -18,15 +18,15 @@ The messages exchanged are JSON:
 }
 ```
 
-##Server
+## Server
 
 The server will listen to port *8001* and path */test* for connections. Once a connection is established it will wait for a message and once received will start to send messages to the client each 500 milliseconds.
 
-##Client
+## Client
 
 The client will connect to the server and send a message while logging any messages received from the server. After 30 seconds the client will disconnect.
 
-##Dependencies
+## Dependencies
 
 ```
 compile('org.springframework.boot:spring-boot-starter-webflux')
