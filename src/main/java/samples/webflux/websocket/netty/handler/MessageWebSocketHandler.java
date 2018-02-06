@@ -66,7 +66,7 @@ public class MessageWebSocketHandler implements WebSocketHandler
 	{
 		if (session != null)
 		{
-			session.close();			
+			session.close();
 			session = null;
 		}
 	}

@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import samples.webflux.websocket.netty.handler.MessageDTO;
@@ -55,18 +56,21 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 		clientWebSocketHandler
 			.connected()
 			.doOnNext(id -> logger.info("Connected [{}]", id))
-			.doOnNext(value -> clientWebSocketHandler.send(new MessageDTO(0)))
+			.map(id -> new MessageDTO(0))
+			.doOnNext(message -> clientWebSocketHandler.send(message))
+			.doOnNext(message -> logger.info("Client Sent: [{}]", message.getValue()))
 			.blockFirst();
 		
-		clientWebSocketHandler
+		Disposable receiveSubscription =
+			clientWebSocketHandler
 			.receive()
 			.subscribeOn(Schedulers.elastic())
-			.subscribe(message -> logger.info("Received: [{}]", message.getValue()));		
+			.subscribe(message -> logger.info("Client Received: [{}]", message.getValue()));		
 		
 		Mono
-			.delay(Duration.ofMillis(500))
-			.block();
-		
-		clientWebSocketHandler.disconnect();
+			.delay(Duration.ofMillis(1_000))
+			.doOnNext(value -> receiveSubscription.dispose())
+			.doOnNext(value -> clientWebSocketHandler.disconnect())			
+			.subscribe();
 	}
 }

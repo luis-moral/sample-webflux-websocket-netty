@@ -30,7 +30,7 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 			serverWebSocketHandler
 				.receive()
 				.subscribeOn(Schedulers.elastic())
-				.doOnNext(message -> logger.info("Received: [{}]", message.getValue()));
+				.doOnNext(message -> logger.info("Server Received: [{}]", message.getValue()));
 		
 		Mono<MessageDTO> receiveFirst =
 			serverWebSocketHandler
@@ -40,10 +40,10 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 		
 		Flux<MessageDTO> send =
 			Flux
-				.interval(Duration.ofMillis(250))
+				.interval(Duration.ofMillis(500))
 				.subscribeOn(Schedulers.elastic())
 				.map(interval -> new MessageDTO(interval))
-				.doOnNext(dto -> logger.info("Sent: [{}]", dto.getValue()))
+				.doOnNext(dto -> logger.info("Server Sent: [{}]", dto.getValue()))
 				.doOnNext(dto -> serverWebSocketHandler.send(dto));
 		
 		serverWebSocketHandler
