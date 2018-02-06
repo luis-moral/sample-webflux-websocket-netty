@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: spring-boot-sample-webflux-websocket-netty
+  main:
+    banner-mode: "OFF"    
+
+server:
+  port: 8001
