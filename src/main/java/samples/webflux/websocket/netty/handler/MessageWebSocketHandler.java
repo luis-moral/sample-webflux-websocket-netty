@@ -12,58 +12,60 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-public class WebSocketServerHandler implements WebSocketHandler
+public class MessageWebSocketHandler implements WebSocketHandler
 {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private final ObjectMapper objectMapper;
-	
-	private final HandlerPublisher<MessageDTO> publisher;
+	private final ObjectMapper objectMapper;	
+	private final HandlerPublisher<MessageDTO> receivePublisher;
 	private final Flux<MessageDTO> receiveFlux;
+	private final HandlerPublisher<String> connectedPublisher;
+	private final Mono<String> connectedMono;
 	
 	private WebSocketSession session;
 	
-	public WebSocketServerHandler(ObjectMapper objectMapper)
+	public MessageWebSocketHandler(ObjectMapper objectMapper)
 	{
 		this.objectMapper = objectMapper;
 		
-		publisher = new HandlerPublisher<MessageDTO>();		
-		receiveFlux = Flux.from(publisher).cache(50);
+		receivePublisher = new HandlerPublisher<MessageDTO>();
+		receiveFlux = Flux.from(receivePublisher).cache(50);
+		
+		connectedPublisher = new HandlerPublisher<String>();
+		connectedMono = Mono.from(connectedPublisher).cache();
 	}
 	
 	@Override
 	public Mono<Void> handle(WebSocketSession session) 
 	{
+		disconnect();
+		
 		this.session = session;
 		
-		Flux<MessageDTO> receive =		
+		Flux<MessageDTO> receive =
 			session
 				.receive()
 				.subscribeOn(Schedulers.elastic())
 				.doOnError(t -> logger.error(t.getLocalizedMessage(), t))
 				.map(this::toMessageDTO)
-				.doOnNext(publisher::publish);
+				.doOnNext(receivePublisher::publish);
 		
-		/*Mono<?> receive = 
-					session
-						.receive()
-						.subscribeOn(Schedulers.elastic())
-						.doOnNext(message -> logger.info("Received: [{}]", message.getPayloadAsText()))
-						.next();*/
+		connectedPublisher.complete(session.getId());
 		
-		/*Mono<Void> send =
-					session.send
-					(
-						Flux
-							.interval(Duration.ofMillis(250))
-							.subscribeOn(Schedulers.elastic())
-							.map(interval -> new MessageDTO(interval))
-							.map(dto -> { try { return objectMapper.writeValueAsString(dto); } catch (Exception e) { throw new RuntimeException(e); } })
-							.doOnNext(message -> logger.info("Sent: [{}]", message))
-							.map(string -> session.textMessage(string))			
-					);*/
-		 
 		return receive.then();
+	}
+	
+	public Mono<String> connected()
+	{
+		return connectedMono;
+	}
+	
+	public void disconnect()
+	{
+		if (session != null)
+		{
+			session.close();
+		}
 	}
 	
 	public Flux<MessageDTO> receive()
@@ -73,8 +75,7 @@ public class WebSocketServerHandler implements WebSocketHandler
 	
 	public void send(MessageDTO message)
 	{
-		session
-			.send(Mono.just(toWebSocketMessage(message)));
+		session.send(Mono.just(toWebSocketMessage(message))).block();
 	}
 	
 	private MessageDTO toMessageDTO(WebSocketMessage message)

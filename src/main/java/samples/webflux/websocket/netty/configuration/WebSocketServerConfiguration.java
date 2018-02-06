@@ -12,22 +12,22 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import samples.webflux.websocket.netty.handler.WebSocketServerHandler;
+import samples.webflux.websocket.netty.handler.MessageWebSocketHandler;
 
 @Configuration
 public class WebSocketServerConfiguration 
 {
 	@Bean
-	public WebSocketServerHandler webSocketServerHandler(ObjectMapper objectMapper)
+	public MessageWebSocketHandler serverWebSocketHandler(ObjectMapper objectMapper)
 	{
-		return new WebSocketServerHandler(objectMapper);
+		return new MessageWebSocketHandler(objectMapper);
 	}
 	
 	@Bean
-    public HandlerMapping handlerMapping(WebSocketServerHandler webSocketServerHandler) 
+    public HandlerMapping handlerMapping(WebSocketHandler serverWebSocketHandler) 
 	{
         Map<String, WebSocketHandler> handlerByPathMap = new HashMap<String, WebSocketHandler>();
-        handlerByPathMap.put("/test", webSocketServerHandler);
+        handlerByPathMap.put("/test", serverWebSocketHandler);
 
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
         handlerMapping.setUrlMap(handlerByPathMap);

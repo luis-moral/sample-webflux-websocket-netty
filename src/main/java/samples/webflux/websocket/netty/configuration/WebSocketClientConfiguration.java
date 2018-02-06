@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
-import samples.webflux.websocket.netty.handler.WebSocketClientHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import samples.webflux.websocket.netty.handler.MessageWebSocketHandler;
 
 @Configuration
 public class WebSocketClientConfiguration 
@@ -17,8 +19,8 @@ public class WebSocketClientConfiguration
 	}
 	
 	@Bean
-	public WebSocketClientHandler webSocketClientHandler()
+	public MessageWebSocketHandler clientWebSocketHandler(ObjectMapper objectMapper)
 	{
-		return new WebSocketClientHandler();
+		return new MessageWebSocketHandler(objectMapper);
 	}
 }
