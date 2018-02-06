@@ -1,4 +1,4 @@
-#Spring Boot 2.0 WebFlux Reactive WebSocket client and server.
+#Spring Boot 2.0 WebFlux Reactive WebSocket client and server#
 
 Sample project using **spring-boot-webflux** with **reactor-netty** reactive websocket client and server. The target of the sample is provide a sample on how to directly use WebSocketHandler handle method to receive the messages and publish them to a Flux which the business logic can consume an process as needed. 
 
@@ -14,7 +14,7 @@ The messages exchanged are JSON:
 
 ```
 {
-	"value": 0
+  "value": 0
 }
 ```
 
