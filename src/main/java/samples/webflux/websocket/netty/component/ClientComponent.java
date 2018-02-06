@@ -8,8 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
@@ -25,6 +27,9 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
+    private ConfigurableApplicationContext applicationContext;
+	
+	@Autowired
 	private WebSocketClient webSocketClient;
 	
 	@Autowired
@@ -33,6 +38,9 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	@Value("${server.port}")
     private int serverPort;
 	
+	@Value("${sample.path}")
+    private String samplePath;
+	
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) 
 	{		
@@ -40,7 +48,7 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 		
 		try
 		{
-			uri = new URI("ws://localhost:" + serverPort + "/test");
+			uri = new URI("ws://localhost:" + serverPort + samplePath);
 		}
 		catch (URISyntaxException USe)
 		{
@@ -68,9 +76,10 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 			.subscribe(message -> logger.info("Client Received: [{}]", message.getValue()));		
 		
 		Mono
-			.delay(Duration.ofMillis(1_000))
+			.delay(Duration.ofSeconds(1))
 			.doOnNext(value -> receiveSubscription.dispose())
-			.doOnNext(value -> clientWebSocketHandler.disconnect())			
-			.subscribe();
+			.doOnNext(value -> clientWebSocketHandler.disconnect())
+			.then(Mono.delay(Duration.ofMillis(500)))
+			.subscribe(value -> SpringApplication.exit(applicationContext, () -> 0));
 	}
 }
