@@ -27,7 +27,7 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
-    private ConfigurableApplicationContext applicationContext;
+	private ConfigurableApplicationContext applicationContext;
 	
 	@Autowired
 	private WebSocketClient webSocketClient;
@@ -36,10 +36,10 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	private MessageWebSocketHandler clientWebSocketHandler;
 	
 	@Value("${server.port}")
-    private int serverPort;
+	private int serverPort;
 	
 	@Value("${sample.path}")
-    private String samplePath;
+	private String samplePath;
 	
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) 

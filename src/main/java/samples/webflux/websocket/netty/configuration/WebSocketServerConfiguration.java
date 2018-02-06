@@ -19,7 +19,7 @@ import samples.webflux.websocket.netty.handler.MessageWebSocketHandler;
 public class WebSocketServerConfiguration 
 {
 	@Value("${sample.path}")
-    private String samplePath;
+	private String samplePath;
 	
 	@Bean
 	public MessageWebSocketHandler serverWebSocketHandler(ObjectMapper objectMapper)
@@ -28,21 +28,21 @@ public class WebSocketServerConfiguration
 	}
 	
 	@Bean
-    public HandlerMapping handlerMapping(WebSocketHandler serverWebSocketHandler) 
+	public HandlerMapping handlerMapping(WebSocketHandler serverWebSocketHandler) 
 	{
-        Map<String, WebSocketHandler> handlerByPathMap = new HashMap<String, WebSocketHandler>();
-        handlerByPathMap.put(samplePath, serverWebSocketHandler);
+		Map<String, WebSocketHandler> handlerByPathMap = new HashMap<String, WebSocketHandler>();
+		handlerByPathMap.put(samplePath, serverWebSocketHandler);
 
-        SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
-        handlerMapping.setUrlMap(handlerByPathMap);
-        handlerMapping.setOrder(-1);
+		SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
+		handlerMapping.setUrlMap(handlerByPathMap);
+		handlerMapping.setOrder(-1);
 
-        return handlerMapping;
-    }
+		return handlerMapping;
+	}
 	
 	@Bean
-    public WebSocketHandlerAdapter handlerAdapter() 
+	public WebSocketHandlerAdapter handlerAdapter() 
 	{
 		return new WebSocketHandlerAdapter();
-    }
+	}
 }
