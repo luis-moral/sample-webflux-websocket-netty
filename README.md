@@ -4,9 +4,9 @@ Sample project using **spring-boot-webflux** with **reactor-netty** reactive web
 
 [Official documentation](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-websocket)
 
-## Run
+## Start
 
-To run the sample just execute `gradlew bootRun`.
+To start the sample just run `gradlew bootRun`.
 
 ## Message
 
@@ -33,5 +33,7 @@ compile('org.springframework.boot:spring-boot-starter-webflux')
 compile('io.projectreactor.ipc:reactor-netty')
 compile('io.projectreactor.addons:reactor-extra')
 ```
+
+[Servers](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-httphandler)
 
 Make sure you don't have **spring-boot-starter-web** as dependency or the embedded server will not correctly register your handlers since it will be expecting the servlet version insteand the reactive version.
