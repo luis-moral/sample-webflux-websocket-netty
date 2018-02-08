@@ -1,6 +1,6 @@
 spring:
   application:
-    name: spring-boot-sample-webflux-websocket-netty
+    name: sample-webflux-websocket-netty
   main:
     banner-mode: "OFF"    
 
