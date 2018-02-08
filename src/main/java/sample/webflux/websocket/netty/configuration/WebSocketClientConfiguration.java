@@ -7,7 +7,7 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
 
 @Configuration
 public class WebSocketClientConfiguration 
@@ -19,8 +19,8 @@ public class WebSocketClientConfiguration
 	}
 	
 	@Bean
-	public MessageWebSocketHandler clientWebSocketHandler(ObjectMapper objectMapper)
+	public ClientWebSocketHandler clientWebSocketHandler(ObjectMapper objectMapper)
 	{
-		return new MessageWebSocketHandler(objectMapper);
+		return new ClientWebSocketHandler(objectMapper);
 	}
 }

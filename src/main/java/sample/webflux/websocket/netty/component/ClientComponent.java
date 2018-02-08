@@ -19,7 +19,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import sample.webflux.websocket.netty.handler.MessageDTO;
-import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
 
 @Component
 public class ClientComponent implements ApplicationListener<ApplicationReadyEvent>
@@ -33,7 +33,7 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	private WebSocketClient webSocketClient;
 	
 	@Autowired
-	private MessageWebSocketHandler clientWebSocketHandler;
+	private ClientWebSocketHandler clientWebSocketHandler;
 	
 	@Value("${server.port}")
 	private int serverPort;

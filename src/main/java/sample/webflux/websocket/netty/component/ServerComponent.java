@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import sample.webflux.websocket.netty.handler.MessageDTO;
-import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
 
 @Component
 public class ServerComponent implements ApplicationListener<ApplicationReadyEvent>
@@ -21,7 +21,7 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
-	private MessageWebSocketHandler serverWebSocketHandler;
+	private ServerWebSocketHandler serverWebSocketHandler;
 	
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) 

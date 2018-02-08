@@ -13,7 +13,7 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
 
 @Configuration
 public class WebSocketServerConfiguration 
@@ -22,13 +22,13 @@ public class WebSocketServerConfiguration
 	private String samplePath;
 	
 	@Bean
-	public MessageWebSocketHandler serverWebSocketHandler(ObjectMapper objectMapper)
+	public ServerWebSocketHandler serverWebSocketHandler(ObjectMapper objectMapper)
 	{
-		return new MessageWebSocketHandler(objectMapper);
+		return new ServerWebSocketHandler(objectMapper);
 	}
 	
 	@Bean
-	public HandlerMapping handlerMapping(WebSocketHandler serverWebSocketHandler) 
+	public HandlerMapping handlerMapping(ServerWebSocketHandler serverWebSocketHandler) 
 	{
 		Map<String, WebSocketHandler> handlerByPathMap = new HashMap<String, WebSocketHandler>();
 		handlerByPathMap.put(samplePath, serverWebSocketHandler);

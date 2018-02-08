@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class MessageWebSocketHandler implements WebSocketHandler
+public class ServerWebSocketHandler implements WebSocketHandler
 {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -26,7 +26,7 @@ public class MessageWebSocketHandler implements WebSocketHandler
 	private WebSocketSession session;
 	private boolean webSocketConnected;
 	
-	public MessageWebSocketHandler(ObjectMapper objectMapper)
+	public ServerWebSocketHandler(ObjectMapper objectMapper)
 	{
 		this.objectMapper = objectMapper;
 		
