@@ -3,39 +3,35 @@ package sample.webflux.websocket.netty.handler;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ReplayProcessor;
 
 public class ClientWebSocketHandler implements WebSocketHandler
 {
-	private final WebSocketSessionHandler webSocketSessionHandler;
+	private final WebSocketSessionHandler sessionHandler;
+	private final ReplayProcessor<WebSocketSessionHandler> connectedProcessor;
 	
-	private final HandlerPublisher<WebSocketSessionHandler> connectedPublisher;
-	private final Flux<WebSocketSessionHandler> connectedFlux;
-	
-	public ClientWebSocketHandler(ObjectMapper objectMapper)
+	public ClientWebSocketHandler()
 	{	
-		webSocketSessionHandler = new WebSocketSessionHandler(objectMapper);
+		sessionHandler = new WebSocketSessionHandler();
 		
-		connectedPublisher = new HandlerPublisher<WebSocketSessionHandler>();
-		connectedFlux = Flux.from(connectedPublisher).cache(5);	
+		connectedProcessor = ReplayProcessor.create();
 	}
 	
 	@Override
 	public Mono<Void> handle(WebSocketSession session) 
 	{		
-		webSocketSessionHandler
-			.connected()			
-			.doOnNext(handler -> connectedPublisher.publish(webSocketSessionHandler))
+		sessionHandler
+			.connected()
+			.doOnNext(value -> connectedProcessor.onNext(sessionHandler))
 			.subscribe();
 		
-		return webSocketSessionHandler.handle(session);
+		return sessionHandler.handle(session);
 	}
 	
 	public Flux<WebSocketSessionHandler> connected()
 	{
-		return connectedFlux;
+		return connectedProcessor;
 	}
 }

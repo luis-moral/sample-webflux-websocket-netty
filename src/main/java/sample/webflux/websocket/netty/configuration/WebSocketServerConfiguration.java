@@ -11,8 +11,6 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
 
 @Configuration
@@ -22,9 +20,9 @@ public class WebSocketServerConfiguration
 	private String samplePath;
 	
 	@Bean
-	public ServerWebSocketHandler serverWebSocketHandler(ObjectMapper objectMapper)
+	public ServerWebSocketHandler serverWebSocketHandler()
 	{
-		return new ServerWebSocketHandler(objectMapper);
+		return new ServerWebSocketHandler();
 	}
 	
 	@Bean

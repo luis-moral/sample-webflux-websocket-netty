@@ -19,7 +19,6 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
-import sample.webflux.websocket.netty.handler.MessageDTO;
 import sample.webflux.websocket.netty.handler.WebSocketSessionHandler;
 
 @Component
@@ -62,21 +61,21 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 				.subscribeOn(Schedulers.elastic())
 				.subscribe();
 		
-		WebSocketSessionHandler handler = 
+		WebSocketSessionHandler sessionHandler = 
 			clientWebSocketHandler
 				.connected()
 				.doOnNext(id -> logger.info("Connected [{}]", id))
 				.blockFirst();
 		
-		MessageDTO sendMessage = new MessageDTO(0);
+		String sendMessage = "Test Message";
 		
-		handler.send(sendMessage);			
-		logger.info("Client Sent: [{}]", sendMessage.getValue());
+		sessionHandler.send(sendMessage);			
+		logger.info("Client Sent: [{}]", sendMessage);
 				
-		handler
+		sessionHandler
 			.receive()
 			.subscribeOn(Schedulers.elastic())
-			.subscribe(message -> logger.info("Client Received: [{}]", message.getValue()));		
+			.subscribe(message -> logger.info("Client Received: [{}]", message));		
 		
 		Mono
 			.delay(Duration.ofSeconds(5))			

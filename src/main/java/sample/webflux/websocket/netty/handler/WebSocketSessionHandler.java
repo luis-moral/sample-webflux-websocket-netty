@@ -2,12 +2,7 @@ package sample.webflux.websocket.netty.handler;
 
 import java.nio.channels.ClosedChannelException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,23 +11,25 @@ import reactor.core.publisher.ReplayProcessor;
 
 public class WebSocketSessionHandler 
 {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
-		
-	private final ObjectMapper objectMapper;
-	private final ReplayProcessor<MessageDTO> receiveProcessor;
+	private final ReplayProcessor<String> receiveProcessor;
 	private final MonoProcessor<Object> connectedProcessor;
 	private final MonoProcessor<Object> disconnectedProcessor;
 	
-	private WebSocketSession session;
 	private boolean webSocketConnected;
+	private WebSocketSession session;	
 	
-	public WebSocketSessionHandler(ObjectMapper objectMapper)
+	public WebSocketSessionHandler()
 	{
-		this.objectMapper = objectMapper;
-		
-		receiveProcessor = ReplayProcessor.create(50);
+		this(50);
+	}
+	
+	public WebSocketSessionHandler(int historySize)
+	{
+		receiveProcessor = ReplayProcessor.create(historySize);		
 		connectedProcessor = MonoProcessor.create();
 		disconnectedProcessor = MonoProcessor.create();
+		
+		webSocketConnected = false;
 	}
 	
 	public Mono<Void> handle(WebSocketSession session)
@@ -40,13 +37,12 @@ public class WebSocketSessionHandler
 		this.session = session;
 		
 		webSocketConnected = true;
-		connectedProcessor.onNext(2);
+		connectedProcessor.onNext(true);
 		
-		Flux<MessageDTO> receive =
+		Flux<String> receive =
 			session
-				.receive()
-				.doOnError(t -> logger.error(t.getLocalizedMessage(), t))				
-				.map(this::toMessageDTO)
+				.receive()		
+				.map(Message -> Message.getPayloadAsText())
 				.doOnNext(receiveProcessor::onNext);		
 			
 		return receive.then();
@@ -67,50 +63,23 @@ public class WebSocketSessionHandler
 		return webSocketConnected;
 	}
 	
-	public Flux<MessageDTO> receive()
+	public Flux<String> receive()
 	{
 		return receiveProcessor;
 	}
 	
-	public void send(MessageDTO message)
+	public void send(String message)
 	{		
 		session
-			.send(Mono.just(toWebSocketMessage(message)))
-			.doOnError(ClosedChannelException.class, this::webSocketChannelClosed)
-			.onErrorResume(ClosedChannelException.class, t -> Mono.empty())
-			.doOnError(t -> logger.error(t.getLocalizedMessage(), t))
+			.send(Mono.just(session.textMessage(message)))
+			.doOnError(ClosedChannelException.class, this::channelClosed)
+			.onErrorResume(ClosedChannelException.class, t -> Mono.empty())			
 			.block();
 	}
 	
-	private void webSocketChannelClosed(ClosedChannelException exception)
+	private void channelClosed(ClosedChannelException exception)
 	{
-		logger.info("WebSocket disconnected.");		
-		
 		webSocketConnected = false;
-		disconnectedProcessor.onNext(null);
-	}
-	
-	private MessageDTO toMessageDTO(WebSocketMessage message)
-	{
-		try 
-		{ 
-			return objectMapper.readValue(message.getPayloadAsText(), MessageDTO.class); 
-		}
-		catch (Exception e) 
-		{ 
-			throw new RuntimeException(e); 
-		}
-	}
-	
-	private WebSocketMessage toWebSocketMessage(MessageDTO message)
-	{
-		try 
-		{ 
-			return session.textMessage(objectMapper.writeValueAsString(message)); 
-		} 
-		catch (Exception e) 
-		{ 
-			throw new RuntimeException(e); 
-		}
+		disconnectedProcessor.onNext(true);
 	}
 }

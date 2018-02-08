@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import sample.webflux.websocket.netty.handler.MessageDTO;
 import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
+import sample.webflux.websocket.netty.handler.WebSocketSessionHandler;
 
 @Component
 public class ServerComponent implements ApplicationListener<ApplicationReadyEvent>
@@ -26,30 +26,32 @@ public class ServerComponent implements ApplicationListener<ApplicationReadyEven
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) 
 	{
-		Flux<MessageDTO> receiveAll =
+		WebSocketSessionHandler sessionHandler = 
 			serverWebSocketHandler
+				.connected()
+				.doOnNext(value -> logger.info("Client Connected [{}]", value))
+				.blockFirst();
+		
+		Flux<String> receiveAll =
+			sessionHandler
 				.receive()
 				.subscribeOn(Schedulers.elastic())
-				.doOnNext(message -> logger.info("Server Received: [{}]", message.getValue()));
+				.doOnNext(message -> logger.info("Server Received: [{}]", message));
 		
-		Mono<MessageDTO> receiveFirst =
-			serverWebSocketHandler
+		Mono<String> receiveFirst =
+			sessionHandler
 				.receive()
 				.subscribeOn(Schedulers.elastic())
 				.next();
 		
-		Flux<MessageDTO> send =
+		Flux<String> send =
 			Flux
 				.interval(Duration.ofMillis(500))
 				.subscribeOn(Schedulers.elastic())
-				.takeUntil(value -> !serverWebSocketHandler.isConnected())
-				.map(interval -> new MessageDTO(interval))				
-				.doOnNext(dto -> serverWebSocketHandler.send(dto))
-				.doOnNext(dto -> logger.info("Server Sent: [{}]", dto.getValue()));
-		
-		serverWebSocketHandler
-			.connected()
-			.subscribe(value -> logger.info("Client connected."));
+				.takeUntil(value -> !sessionHandler.isConnected())
+				.map(interval -> Long.toString(interval))				
+				.doOnNext(message -> sessionHandler.send(message))
+				.doOnNext(message -> logger.info("Server Sent: [{}]", message));
 		
 		receiveAll.subscribe();
 		receiveFirst.thenMany(send).subscribe();
