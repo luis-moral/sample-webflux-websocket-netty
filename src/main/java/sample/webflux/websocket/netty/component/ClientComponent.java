@@ -18,8 +18,9 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import sample.webflux.websocket.netty.handler.MessageDTO;
 import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
+import sample.webflux.websocket.netty.handler.MessageDTO;
+import sample.webflux.websocket.netty.handler.WebSocketSessionHandler;
 
 @Component
 public class ClientComponent implements ApplicationListener<ApplicationReadyEvent>
@@ -61,15 +62,18 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 				.subscribeOn(Schedulers.elastic())
 				.subscribe();
 		
-		clientWebSocketHandler
-			.connected()
-			.doOnNext(id -> logger.info("Connected [{}]", id))
-			.map(id -> new MessageDTO(0))
-			.doOnNext(message -> clientWebSocketHandler.send(message))
-			.doOnNext(message -> logger.info("Client Sent: [{}]", message.getValue()))
-			.blockFirst();
+		WebSocketSessionHandler handler = 
+				clientWebSocketHandler
+					.connected()
+					.doOnNext(id -> logger.info("Connected [{}]", id))
+					.blockFirst();
+		
+		MessageDTO sendMessage = new MessageDTO(0);
+		
+		handler.send(sendMessage);			
+		logger.info("Client Sent: [{}]", sendMessage.getValue());
 				
-		clientWebSocketHandler
+		handler
 			.receive()
 			.subscribeOn(Schedulers.elastic())
 			.subscribe(message -> logger.info("Client Received: [{}]", message.getValue()));		
