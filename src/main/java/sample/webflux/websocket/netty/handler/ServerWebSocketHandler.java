@@ -9,22 +9,21 @@ import reactor.core.publisher.ReplayProcessor;
 
 public class ServerWebSocketHandler implements WebSocketHandler
 {
-	private final WebSocketSessionHandler sessionHandler;	
 	private final ReplayProcessor<WebSocketSessionHandler> connectedProcessor;	
 	
 	public ServerWebSocketHandler()
 	{
-		sessionHandler = new WebSocketSessionHandler();
-		
 		connectedProcessor = ReplayProcessor.create();
 	}
 	
 	@Override
 	public Mono<Void> handle(WebSocketSession session) 
 	{		
+		WebSocketSessionHandler sessionHandler = new WebSocketSessionHandler();
+		
 		sessionHandler
 			.connected()
-			.doOnNext(value -> connectedProcessor.onNext(sessionHandler))
+			.doOnNext(value -> connectedProcessor.onNext(sessionHandler))			
 			.subscribe();
 		
 		return sessionHandler.handle(session);

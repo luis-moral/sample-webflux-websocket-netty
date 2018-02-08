@@ -13,8 +13,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
-import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
 import sample.webflux.websocket.netty.logic.ClientLogic;
 
 @Component
@@ -26,9 +26,6 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	@Autowired
 	private WebSocketClient webSocketClient;
 	
-	@Autowired
-	private ClientWebSocketHandler clientWebSocketHandler;
-	
 	@Value("${server.port}")
 	private int serverPort;
 	
@@ -39,11 +36,13 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	public void onApplicationEvent(ApplicationReadyEvent event) 
 	{			
 		ClientLogic clientLogic = new ClientLogic();
-		clientLogic.start(webSocketClient, clientWebSocketHandler, getURI());
+		Disposable logicOne = clientLogic.start(webSocketClient, getURI());
+		Disposable logicTwo = clientLogic.start(webSocketClient, getURI());
 		
 		Mono
-			.delay(Duration.ofSeconds(5))
-			.doOnEach(value -> clientLogic.stop())
+			.delay(Duration.ofSeconds(1000))
+			.doOnEach(value -> logicOne.dispose())
+			.doOnEach(value -> logicTwo.dispose())
 			.map(value -> SpringApplication.exit(applicationContext, () -> 0))
 			.subscribe(exitValue -> System.exit(exitValue));
 	}

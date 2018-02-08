@@ -14,42 +14,40 @@ import sample.webflux.websocket.netty.handler.WebSocketSessionHandler;
 public class ClientLogic 
 {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
-	private Disposable clientConnection;
 		
-	public void start(WebSocketClient webSocketClient, ClientWebSocketHandler clientWebSocketHandler, URI uri)
+	public Disposable start(WebSocketClient webSocketClient, URI uri)
 	{
-		clientConnection =
+		ClientWebSocketHandler clientWebSocketHandler = new ClientWebSocketHandler();
+		
+		clientWebSocketHandler
+			.connected()
+			.subscribe(this::doLogic);
+		
+		Disposable clientConnection =
 			webSocketClient
 				.execute(uri, clientWebSocketHandler)
 				.subscribeOn(Schedulers.elastic())
-				.subscribe();
+				.subscribe();	
 		
-		WebSocketSessionHandler sessionHandler = 
-			clientWebSocketHandler
-				.connected()
-				.doOnNext(value -> logger.info("Connected [{}]", value))
-				.blockFirst();
+		return clientConnection;
+	}
+	
+	private void doLogic(WebSocketSessionHandler sessionHandler)
+	{
+		sessionHandler
+			.connected()
+			.doOnNext(value -> logger.info("Client Connected [{}]", value))
+			.map(value -> "Test Message")
+			.doOnNext(message -> sessionHandler.send(message))
+			.subscribe(message -> logger.info("Client Sent: [{}]", message));
 		
 		sessionHandler
 			.disconnected()
-			.subscribe(value -> logger.info("Disconnected [{}]", value));
-		
-		String sendMessage = "Test Message";
-		
-		sessionHandler.send(sendMessage);			
-		logger.info("Client Sent: [{}]", sendMessage);
-				
+			.subscribe(value -> logger.info("Client Disconnected [{}]", value));
+						
 		sessionHandler
 			.receive()
 			.subscribeOn(Schedulers.elastic())
-			.subscribe(message -> logger.info("Client Received: [{}]", message));		
-	}
-	
-	public void stop()
-	{
-		clientConnection.dispose();
-		
-		logger.info("Disconnected.");			
+			.subscribe(message -> logger.info("Client Received: [{}]", message));
 	}
 }

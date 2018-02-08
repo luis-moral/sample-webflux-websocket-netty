@@ -33,9 +33,9 @@ public class WebSocketSessionHandler
 		webSocketConnected = false;
 	}
 	
-	public Mono<Void> handle(WebSocketSession session)
+	Mono<Void> handle(WebSocketSession session)
 	{
-		this.session = session;		
+		this.session = session;
 		
 		Flux<String> receive =
 			session
@@ -47,16 +47,16 @@ public class WebSocketSessionHandler
 				Mono
 					.fromRunnable(() -> 
 					{
-						connectedProcessor.onNext(true);
 						webSocketConnected = true;
+						connectedProcessor.onNext(true);						
 					});
 
 		Mono<Object> disconnected =
 				Mono
 					.fromRunnable(() -> 
 					{
-						disconnectedProcessor.onNext(true);
-						webSocketConnected = false;								
+						webSocketConnected = false;
+						disconnectedProcessor.onNext(true);												
 					});
 			
 		return connected.thenMany(receive).then(disconnected).then();

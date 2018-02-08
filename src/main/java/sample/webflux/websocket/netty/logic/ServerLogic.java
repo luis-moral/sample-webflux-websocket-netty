@@ -17,15 +17,24 @@ public class ServerLogic
 	
 	public void start(ServerWebSocketHandler serverWebSocketHandler)
 	{
-		WebSocketSessionHandler sessionHandler = 
-			serverWebSocketHandler
-				.connected()
-				.doOnNext(value -> logger.info("Connected [{}]", value))
-				.blockFirst();
-			
+		serverWebSocketHandler
+			.connected()			
+			.subscribe(this::doLogic);	
+	}
+	
+	private void doLogic(WebSocketSessionHandler sessionHandler)
+	{
+		sessionHandler
+			.connected()
+			.subscribe(value -> logger.info("Server Connected [{}]", value));
+		
+		sessionHandler
+			.disconnected()
+			.subscribe(value -> logger.info("Server Disconnected [{}]", value));
+		
 		Flux<String> receiveAll =
 			sessionHandler
-				.receive()
+				.receive()				
 				.subscribeOn(Schedulers.elastic())
 				.doOnNext(message -> logger.info("Server Received: [{}]", message));
 		
@@ -38,7 +47,7 @@ public class ServerLogic
 		Flux<String> send =
 			Flux
 				.interval(Duration.ofMillis(500))
-				.subscribeOn(Schedulers.elastic())
+				.subscribeOn(Schedulers.elastic())				
 				.takeUntil(value -> !sessionHandler.isConnected())
 				.map(interval -> Long.toString(interval))				
 				.doOnNext(message -> sessionHandler.send(message))

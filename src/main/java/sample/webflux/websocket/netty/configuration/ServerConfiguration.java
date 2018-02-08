@@ -14,7 +14,7 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
 
 @Configuration
-public class WebSocketServerConfiguration 
+public class ServerConfiguration 
 {
 	@Value("${sample.path}")
 	private String samplePath;
