@@ -40,7 +40,7 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 		Disposable logicTwo = clientLogic.start(webSocketClient, getURI());
 		
 		Mono
-			.delay(Duration.ofSeconds(1000))
+			.delay(Duration.ofSeconds(10))
 			.doOnEach(value -> logicOne.dispose())
 			.doOnEach(value -> logicTwo.dispose())
 			.map(value -> SpringApplication.exit(applicationContext, () -> 0))

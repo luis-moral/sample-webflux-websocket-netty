@@ -24,7 +24,7 @@ The server will listen to port *8001* and path */test* for connections. Once a c
 
 ## Client
 
-The client will connect to the server and send a message while logging any messages received from the server. After 30 seconds the client will disconnect.
+The client will connect to instances to the server. It will send a message while logging any messages received from the server. After 10 seconds the client will disconnect and the application will finish.
 
 ## Dependencies
 
