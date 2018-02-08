@@ -11,14 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ReplayProcessor;
 
 public class WebSocketSessionHandler 
 {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 		
 	private final ObjectMapper objectMapper;
-	private final HandlerPublisher<MessageDTO> receivePublisher;
-	private final Flux<MessageDTO> receiveFlux;
+	private final ReplayProcessor<MessageDTO> receiveProcessor;	
 	private final HandlerPublisher<String> connectedPublisher;
 	private final Flux<String> connectedFlux;
 	
@@ -29,8 +29,7 @@ public class WebSocketSessionHandler
 	{		
 		this.objectMapper = objectMapper;
 		
-		receivePublisher = new HandlerPublisher<MessageDTO>();
-		receiveFlux = Flux.from(receivePublisher).cache(50);
+		receiveProcessor = ReplayProcessor.create(50);
 		
 		connectedPublisher = new HandlerPublisher<String>();
 		connectedFlux = Flux.from(connectedPublisher).cache(1);		
@@ -45,7 +44,7 @@ public class WebSocketSessionHandler
 					.receive()
 					.doOnError(t -> logger.error(t.getLocalizedMessage(), t))				
 					.map(this::toMessageDTO)
-					.doOnNext(receivePublisher::publish);
+					.doOnNext(receiveProcessor::onNext);
 		
 		Mono<Object> connected = 
 				Mono
@@ -70,7 +69,7 @@ public class WebSocketSessionHandler
 	
 	public Flux<MessageDTO> receive()
 	{
-		return receiveFlux;
+		return receiveProcessor;
 	}
 	
 	public void send(MessageDTO message)
