@@ -63,10 +63,10 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 				.subscribe();
 		
 		WebSocketSessionHandler handler = 
-				clientWebSocketHandler
-					.connected()
-					.doOnNext(id -> logger.info("Connected [{}]", id))
-					.blockFirst();
+			clientWebSocketHandler
+				.connected()
+				.doOnNext(id -> logger.info("Connected [{}]", id))
+				.blockFirst();
 		
 		MessageDTO sendMessage = new MessageDTO(0);
 		

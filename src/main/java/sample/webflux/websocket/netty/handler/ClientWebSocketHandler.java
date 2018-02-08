@@ -20,14 +20,14 @@ public class ClientWebSocketHandler implements WebSocketHandler
 		webSocketSessionHandler = new WebSocketSessionHandler(objectMapper);
 		
 		connectedPublisher = new HandlerPublisher<WebSocketSessionHandler>();
-		connectedFlux = Flux.from(connectedPublisher).cache(1);	
+		connectedFlux = Flux.from(connectedPublisher).cache(5);	
 	}
 	
 	@Override
 	public Mono<Void> handle(WebSocketSession session) 
 	{		
 		webSocketSessionHandler
-			.connected()
+			.connected()			
 			.doOnNext(handler -> connectedPublisher.publish(webSocketSessionHandler))
 			.subscribe();
 		
