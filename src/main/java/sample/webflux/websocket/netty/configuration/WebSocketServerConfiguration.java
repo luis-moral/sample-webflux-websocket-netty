@@ -1,4 +1,4 @@
-package samples.webflux.websocket.netty.configuration;
+package sample.webflux.websocket.netty.configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import samples.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
 
 @Configuration
 public class WebSocketServerConfiguration 

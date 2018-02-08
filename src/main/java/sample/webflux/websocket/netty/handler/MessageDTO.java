@@ -1,4 +1,4 @@
-package samples.webflux.websocket.netty.handler;
+package sample.webflux.websocket.netty.handler;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

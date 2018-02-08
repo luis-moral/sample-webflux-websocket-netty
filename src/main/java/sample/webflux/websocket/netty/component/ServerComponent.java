@@ -1,4 +1,4 @@
-package samples.webflux.websocket.netty.component;
+package sample.webflux.websocket.netty.component;
 
 import java.time.Duration;
 
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import samples.webflux.websocket.netty.handler.MessageDTO;
-import samples.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.MessageDTO;
+import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
 
 @Component
 public class ServerComponent implements ApplicationListener<ApplicationReadyEvent>

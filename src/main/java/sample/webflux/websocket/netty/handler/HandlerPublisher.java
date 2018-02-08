@@ -1,4 +1,4 @@
-package samples.webflux.websocket.netty.handler;
+package sample.webflux.websocket.netty.handler;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;

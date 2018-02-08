@@ -1,4 +1,4 @@
-package samples.webflux.websocket.netty.component;
+package sample.webflux.websocket.netty.component;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,8 +18,8 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import samples.webflux.websocket.netty.handler.MessageDTO;
-import samples.webflux.websocket.netty.handler.MessageWebSocketHandler;
+import sample.webflux.websocket.netty.handler.MessageDTO;
+import sample.webflux.websocket.netty.handler.MessageWebSocketHandler;
 
 @Component
 public class ClientComponent implements ApplicationListener<ApplicationReadyEvent>
