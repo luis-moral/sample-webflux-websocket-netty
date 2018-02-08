@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.ipc.netty.channel.AbortedException;
 
 public class WebSocketSessionHandler 
 {
@@ -34,18 +35,31 @@ public class WebSocketSessionHandler
 	
 	public Mono<Void> handle(WebSocketSession session)
 	{
-		this.session = session;
-		
-		webSocketConnected = true;
-		connectedProcessor.onNext(true);
+		this.session = session;		
 		
 		Flux<String> receive =
 			session
-				.receive()		
+				.receive()
 				.map(Message -> Message.getPayloadAsText())
-				.doOnNext(receiveProcessor::onNext);		
+				.doOnNext(receiveProcessor::onNext);
+		
+		Mono<Object> connected =
+				Mono
+					.fromRunnable(() -> 
+					{
+						connectedProcessor.onNext(true);
+						webSocketConnected = true;
+					});
+
+		Mono<Object> disconnected =
+				Mono
+					.fromRunnable(() -> 
+					{
+						disconnectedProcessor.onNext(true);
+						webSocketConnected = false;								
+					});
 			
-		return receive.then();
+		return connected.thenMany(receive).then(disconnected).then();
 	}
 	
 	public Mono<Object> connected()
@@ -69,17 +83,25 @@ public class WebSocketSessionHandler
 	}
 	
 	public void send(String message)
-	{		
-		session
-			.send(Mono.just(session.textMessage(message)))
-			.doOnError(ClosedChannelException.class, this::channelClosed)
-			.onErrorResume(ClosedChannelException.class, t -> Mono.empty())			
-			.block();
+	{
+		if (webSocketConnected)
+		{
+			session
+				.send(Mono.just(session.textMessage(message)))
+				.doOnError(ClosedChannelException.class, t -> connectionClosed())
+				.doOnError(AbortedException.class, t -> connectionClosed())
+				.onErrorResume(ClosedChannelException.class, t -> Mono.empty())
+				.onErrorResume(AbortedException.class, t -> Mono.empty())
+				.block();
+		}	
 	}
 	
-	private void channelClosed(ClosedChannelException exception)
+	private void connectionClosed()
 	{
-		webSocketConnected = false;
-		disconnectedProcessor.onNext(true);
+		if (webSocketConnected)
+		{
+			webSocketConnected = false;
+			disconnectedProcessor.onNext(true);
+		}
 	}
 }
