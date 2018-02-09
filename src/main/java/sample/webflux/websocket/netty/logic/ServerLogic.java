@@ -26,11 +26,11 @@ public class ServerLogic
 	{
 		sessionHandler
 			.connected()
-			.subscribe(value -> logger.info("Server Connected [{}]", value));
+			.subscribe(value -> logger.info("Server Connected."));
 		
 		sessionHandler
 			.disconnected()
-			.subscribe(value -> logger.info("Server Disconnected [{}]", value));
+			.subscribe(value -> logger.info("Server Disconnected."));
 		
 		Flux<String> receiveAll =
 			sessionHandler

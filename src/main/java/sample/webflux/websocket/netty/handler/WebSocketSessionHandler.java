@@ -13,8 +13,8 @@ import reactor.ipc.netty.channel.AbortedException;
 public class WebSocketSessionHandler 
 {
 	private final ReplayProcessor<String> receiveProcessor;
-	private final MonoProcessor<Object> connectedProcessor;
-	private final MonoProcessor<Object> disconnectedProcessor;
+	private final MonoProcessor<WebSocketSession> connectedProcessor;
+	private final MonoProcessor<WebSocketSession> disconnectedProcessor;
 	
 	private boolean webSocketConnected;
 	private WebSocketSession session;	
@@ -48,7 +48,7 @@ public class WebSocketSessionHandler
 					.fromRunnable(() -> 
 					{
 						webSocketConnected = true;
-						connectedProcessor.onNext(true);						
+						connectedProcessor.onNext(session);
 					});
 
 		Mono<Object> disconnected =
@@ -56,18 +56,18 @@ public class WebSocketSessionHandler
 					.fromRunnable(() -> 
 					{
 						webSocketConnected = false;
-						disconnectedProcessor.onNext(true);												
+						disconnectedProcessor.onNext(session);
 					});
 			
 		return connected.thenMany(receive).then(disconnected).then();
 	}
 	
-	public Mono<Object> connected()
+	public Mono<WebSocketSession> connected()
 	{
 		return connectedProcessor;
 	}
 	
-	public Mono<Object> disconnected()
+	public Mono<WebSocketSession> disconnected()
 	{
 		return disconnectedProcessor;
 	}
@@ -101,7 +101,7 @@ public class WebSocketSessionHandler
 		if (webSocketConnected)
 		{
 			webSocketConnected = false;
-			disconnectedProcessor.onNext(true);
+			disconnectedProcessor.onNext(session);
 		}
 	}
 }

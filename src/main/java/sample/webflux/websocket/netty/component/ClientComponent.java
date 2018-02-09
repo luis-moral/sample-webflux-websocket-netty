@@ -15,6 +15,7 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
+import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
 import sample.webflux.websocket.netty.logic.ClientLogic;
 
 @Component
@@ -34,10 +35,10 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 	
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) 
-	{			
+	{
 		ClientLogic clientLogic = new ClientLogic();
-		Disposable logicOne = clientLogic.start(webSocketClient, getURI());
-		Disposable logicTwo = clientLogic.start(webSocketClient, getURI());
+		Disposable logicOne = clientLogic.start(webSocketClient, getURI(), new ClientWebSocketHandler());
+		Disposable logicTwo = clientLogic.start(webSocketClient, getURI(), new ClientWebSocketHandler());
 		
 		Mono
 			.delay(Duration.ofSeconds(10))
