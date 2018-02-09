@@ -33,7 +33,7 @@ public class WebSocketSessionHandler
 		webSocketConnected = false;
 	}
 	
-	Mono<Void> handle(WebSocketSession session)
+	protected Mono<Void> handle(WebSocketSession session)
 	{
 		this.session = session;
 		
@@ -41,7 +41,8 @@ public class WebSocketSessionHandler
 			session
 				.receive()
 				.map(message -> message.getPayloadAsText())
-				.doOnNext(textMessage -> receiveProcessor.onNext(textMessage));
+				.doOnNext(textMessage -> receiveProcessor.onNext(textMessage))
+				.doOnComplete(() -> receiveProcessor.onComplete());
 		
 		Mono<Object> connected =
 				Mono
@@ -57,7 +58,8 @@ public class WebSocketSessionHandler
 					{
 						webSocketConnected = false;
 						disconnectedProcessor.onNext(session);
-					});
+					})
+					.doOnNext(value -> receiveProcessor.onComplete());
 			
 		return connected.thenMany(receive).then(disconnected).then();
 	}
