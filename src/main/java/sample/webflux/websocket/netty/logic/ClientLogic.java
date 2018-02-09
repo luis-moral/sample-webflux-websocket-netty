@@ -34,14 +34,14 @@ public class ClientLogic
 	{
 		sessionHandler
 			.connected()
-			.doOnNext(value -> logger.info("Client Connected."))
-			.map(value -> "Test Message")
+			.doOnNext(session -> logger.info("Client Connected [{}]", session.getId()))
+			.map(session -> "Test Message")
 			.doOnNext(message -> sessionHandler.send(message))
 			.subscribe(message -> logger.info("Client Sent: [{}]", message));
 		
 		sessionHandler
 			.disconnected()
-			.subscribe(value -> logger.info("Client Disconnected."));
+			.subscribe(session -> logger.info("Client Disconnected [{}]", session.getId()));
 						
 		sessionHandler
 			.receive()

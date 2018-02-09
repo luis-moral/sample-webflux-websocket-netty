@@ -18,19 +18,19 @@ public class ServerLogic
 	public void start(ServerWebSocketHandler serverWebSocketHandler, long interval)
 	{
 		serverWebSocketHandler
-			.connected()			
-			.subscribe(sessionHandler -> doLogic(sessionHandler, interval));	
+			.connected()
+			.subscribe(sessionHandler -> doLogic(sessionHandler, interval));
 	}
 	
 	private void doLogic(WebSocketSessionHandler sessionHandler, long interval)
 	{
 		sessionHandler
 			.connected()
-			.subscribe(value -> logger.info("Server Connected."));
+			.subscribe(session -> logger.info("Server Connected [{}]", session.getId()));
 		
 		sessionHandler
 			.disconnected()
-			.subscribe(value -> logger.info("Server Disconnected."));
+			.subscribe(session -> logger.info("Server Disconnected [{}]", session.getId()));
 		
 		Flux<String> receiveAll =
 			sessionHandler

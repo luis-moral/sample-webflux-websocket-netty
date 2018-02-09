@@ -26,7 +26,7 @@ public class WebSocketSessionHandler
 	
 	public WebSocketSessionHandler(int historySize)
 	{
-		receiveProcessor = ReplayProcessor.create(historySize);		
+		receiveProcessor = ReplayProcessor.create(historySize);
 		connectedProcessor = MonoProcessor.create();
 		disconnectedProcessor = MonoProcessor.create();
 		
@@ -40,8 +40,8 @@ public class WebSocketSessionHandler
 		Flux<String> receive =
 			session
 				.receive()
-				.map(Message -> Message.getPayloadAsText())
-				.doOnNext(receiveProcessor::onNext);
+				.map(message -> message.getPayloadAsText())
+				.doOnNext(textMessage -> receiveProcessor.onNext(textMessage));
 		
 		Mono<Object> connected =
 				Mono
