@@ -15,14 +15,14 @@ public class ServerLogic
 {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	public void start(ServerWebSocketHandler serverWebSocketHandler)
+	public void start(ServerWebSocketHandler serverWebSocketHandler, long interval)
 	{
 		serverWebSocketHandler
 			.connected()			
-			.subscribe(this::doLogic);	
+			.subscribe(sessionHandler -> doLogic(sessionHandler, interval));	
 	}
 	
-	private void doLogic(WebSocketSessionHandler sessionHandler)
+	private void doLogic(WebSocketSessionHandler sessionHandler, long interval)
 	{
 		sessionHandler
 			.connected()
@@ -46,10 +46,10 @@ public class ServerLogic
 		
 		Flux<String> send =
 			Flux
-				.interval(Duration.ofMillis(500))
+				.interval(Duration.ofMillis(interval))
 				.subscribeOn(Schedulers.elastic())				
 				.takeUntil(value -> !sessionHandler.isConnected())
-				.map(interval -> Long.toString(interval))				
+				.map(value -> Long.toString(value))
 				.doOnNext(message -> sessionHandler.send(message))
 				.doOnNext(message -> logger.info("Server Sent: [{}]", message));
 		

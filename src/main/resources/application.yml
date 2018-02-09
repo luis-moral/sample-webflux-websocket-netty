@@ -9,3 +9,4 @@ server:
   
 sample:
   path: /test
+  send-interval: 500

@@ -24,11 +24,11 @@ public class ServerWebSocketHandler implements WebSocketHandler
 	@Override
 	public Mono<Void> handle(WebSocketSession session) 
 	{
-		WebSocketSessionHandler sessionHandler = new WebSocketSessionHandler();
+		WebSocketSessionHandler sessionHandler = new WebSocketSessionHandler();		
+		connectedProcessor.onNext(sessionHandler);
 		
 		sessionHandler
 			.connected()
-			.doOnNext(value -> connectedProcessor.onNext(sessionHandler))
 			.subscribe(value -> sessionList.add(sessionHandler));
 		
 		sessionHandler
