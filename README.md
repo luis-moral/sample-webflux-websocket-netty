@@ -10,13 +10,7 @@ To start the sample just run `gradlew bootRun`.
 
 ## Message
 
-The messages exchanged are JSON:
-
-```
-{
-  "value": 0
-}
-```
+The messages exchanged are plain text integer values starting with 0.
 
 ## Server
 
