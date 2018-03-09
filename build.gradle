@@ -32,7 +32,6 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-webflux')
 	compile('io.projectreactor.ipc:reactor-netty')
-	compile('io.projectreactor.addons:reactor-extra')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile("io.projectreactor:reactor-test")
