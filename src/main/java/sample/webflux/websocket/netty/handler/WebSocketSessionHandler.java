@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.core.publisher.ReplayProcessor;
+import reactor.core.scheduler.Schedulers;
 import reactor.ipc.netty.channel.AbortedException;
 
 public class WebSocketSessionHandler 
@@ -94,7 +95,7 @@ public class WebSocketSessionHandler
 				.doOnError(AbortedException.class, t -> connectionClosed())
 				.onErrorResume(ClosedChannelException.class, t -> Mono.empty())
 				.onErrorResume(AbortedException.class, t -> Mono.empty())
-				.block();
+				.subscribe();
 		}	
 	}
 	
