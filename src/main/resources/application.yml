@@ -2,11 +2,17 @@ spring:
   application:
     name: sample-webflux-websocket-netty
   main:
-    banner-mode: "OFF"    
+    banner-mode: "OFF"
+
+logging:
+  level:
+    root: INFO
+  file:
+    name: sample-webflux-websocket-netty.log
 
 server:
   port: 8001
-  
+
 sample:
   path: /test
   send-interval: 500

@@ -6,11 +6,10 @@ import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClien
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 
 @Configuration
-public class ClientConfiguration 
-{
-	@Bean
-	public WebSocketClient webSocketClient()
-	{
-		return new ReactorNettyWebSocketClient();
-	}
+public class ClientConfiguration {
+
+    @Bean
+    public WebSocketClient webSocketClient() {
+        return new ReactorNettyWebSocketClient();
+    }
 }

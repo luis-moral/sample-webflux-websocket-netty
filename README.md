@@ -1,6 +1,6 @@
 # Spring Boot 2.0 WebFlux Reactive WebSocket client and server #
 
-Sample project using **spring-boot-webflux** with **reactor-netty** reactive websocket client and server. The target of the sample is provide a sample on how to directly use WebSocketHandler handle method to receive the messages and publish them to a Flux which the business logic can consume and process as needed. 
+Sample project using **spring-boot-webflux** with **reactor-netty** reactive websocket client and server. The target of the code is to provide a sample on how to directly use WebSocketHandler handle method to receive the messages and publish them to a Flux which the business logic can consume and process as needed. 
 
 ## Start ##
 
@@ -18,7 +18,7 @@ The server will listen to port `${server.port}` and path `${sample.path}` for co
 
 ## Client ##
 
-The client will connect two instances to the server. It will send a message while logging any messages received from the server. After 10 seconds the client will disconnect and the application will terminate.
+The client will connect two instances to the server. It will send a message while logging any messages received from the server. After 10 seconds the client will disconnect, and the application will terminate.
 
 [ClientLogic](src/main/java/sample/webflux/websocket/netty/logic/ClientLogic.java)
 
