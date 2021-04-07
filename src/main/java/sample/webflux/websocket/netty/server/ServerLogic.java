@@ -1,12 +1,12 @@
-package sample.webflux.websocket.netty.logic;
+package sample.webflux.websocket.netty.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
-import sample.webflux.websocket.netty.handler.SessionHandler;
+import sample.webflux.websocket.netty.SessionHandler;
 
 import java.time.Duration;
 
@@ -14,8 +14,11 @@ public class ServerLogic {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public void start(ServerWebSocketHandler serverWebSocketHandler, long interval) {
-        serverWebSocketHandler
+    private Disposable receiveAllSubscription;
+    private Disposable receiveFirstAndSendSubscription;
+
+    public void start(ServerHandler serverHandler, long interval) {
+        serverHandler
             .connected()
             .subscribe(sessionHandler -> doLogic(sessionHandler, interval));
     }
@@ -50,7 +53,17 @@ public class ServerLogic {
                 .doOnNext(sessionHandler::send)
                 .doOnNext(message -> logger.info("Server -> sent: [{}] to client id=[{}]", message, sessionHandler.session().getId()));
 
-        receiveAll.subscribe();
-        receiveFirst.thenMany(send).subscribe();
+        receiveAllSubscription = receiveAll.subscribe();
+        receiveFirstAndSendSubscription = receiveFirst.thenMany(send).subscribe();
+    }
+
+    public void stop() {
+        if (receiveAllSubscription != null && !receiveAllSubscription.isDisposed()) {
+            receiveAllSubscription.dispose();
+        }
+
+        if (receiveFirstAndSendSubscription != null && !receiveFirstAndSendSubscription.isDisposed()) {
+            receiveFirstAndSendSubscription.dispose();
+        }
     }
 }

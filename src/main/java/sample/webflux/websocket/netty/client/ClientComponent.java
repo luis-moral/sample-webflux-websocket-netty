@@ -1,4 +1,4 @@
-package sample.webflux.websocket.netty.component;
+package sample.webflux.websocket.netty.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,10 +8,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
-import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
-import sample.webflux.websocket.netty.handler.ClientWebSocketHandler;
-import sample.webflux.websocket.netty.logic.ClientLogic;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,15 +31,17 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        ClientLogic clientLogic = new ClientLogic();
-        Disposable logicOne = clientLogic.start(webSocketClient, getURI(), new ClientWebSocketHandler());
-        Disposable logicTwo = clientLogic.start(webSocketClient, getURI(), new ClientWebSocketHandler());
+        Client clientOne = new Client();
+        Client clientTwo = new Client();
+
+        clientOne.start(webSocketClient, getURI());
+        clientTwo.start(webSocketClient, getURI());
 
         Mono
             .delay(Duration.ofSeconds(10))
             .subscribe(value -> {
-                logicOne.dispose();
-                logicTwo.dispose();
+                clientOne.stop();
+                clientTwo.stop();
 
                 SpringApplication.exit(applicationContext, () -> 0);
             });

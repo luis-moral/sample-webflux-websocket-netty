@@ -1,4 +1,4 @@
-package sample.webflux.websocket.netty.configuration;
+package sample.webflux.websocket.netty.server;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -7,7 +7,7 @@ import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
-import sample.webflux.websocket.netty.handler.ServerWebSocketHandler;
+import sample.webflux.websocket.netty.server.ServerHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,14 +19,14 @@ public class ServerConfiguration {
     private String samplePath;
 
     @Bean
-    public ServerWebSocketHandler serverWebSocketHandler() {
-        return new ServerWebSocketHandler();
+    public ServerHandler serverHandler() {
+        return new ServerHandler();
     }
 
     @Bean
-    public HandlerMapping handlerMapping(ServerWebSocketHandler serverWebSocketHandler) {
+    public HandlerMapping handlerMapping(ServerHandler serverHandler) {
         Map<String, WebSocketHandler> handlerByPathMap = new HashMap<>();
-        handlerByPathMap.put(samplePath, serverWebSocketHandler);
+        handlerByPathMap.put(samplePath, serverHandler);
 
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
         handlerMapping.setUrlMap(handlerByPathMap);

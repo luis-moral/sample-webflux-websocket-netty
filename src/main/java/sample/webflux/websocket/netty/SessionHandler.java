@@ -1,4 +1,4 @@
-package sample.webflux.websocket.netty.handler;
+package sample.webflux.websocket.netty;
 
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
@@ -28,7 +28,7 @@ public class SessionHandler {
         webSocketConnected = false;
     }
 
-    protected Mono<Void> handle(WebSocketSession session) {
+    public Mono<Void> handle(WebSocketSession session) {
         this.session = session;
 
         Flux<String> receive =

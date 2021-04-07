@@ -1,20 +1,21 @@
-package sample.webflux.websocket.netty.handler;
+package sample.webflux.websocket.netty.server;
 
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import sample.webflux.websocket.netty.SessionHandler;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class ServerWebSocketHandler implements WebSocketHandler {
+public class ServerHandler implements WebSocketHandler {
 
     private final Sinks.Many<SessionHandler> connectedProcessor;
     private final List<SessionHandler> sessionList;
 
-    public ServerWebSocketHandler() {
+    public ServerHandler() {
         connectedProcessor = Sinks.many().multicast().directBestEffort();
         sessionList = new LinkedList<>();
     }
