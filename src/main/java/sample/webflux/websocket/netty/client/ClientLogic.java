@@ -22,7 +22,7 @@ public class ClientLogic {
     public Mono<Void> doLogic(WebSocketSession session) {
         return
             sendMessage(session)
-                .thenMany(receiveMessages(session))
+                .thenMany(receiveAll(session))
                 .then();
     }
 
@@ -34,15 +34,18 @@ public class ClientLogic {
                 .fromRunnable(() -> logger.info("Client -> connected id=[{}]", session.getId()))
                 .then(
                     session
-                        .send(Mono.just(session.textMessage(message)))
-                        .doOnNext(value -> logger.info("Client({}) -> sent: [{}]", session.getId(), message))
+                        .send(Mono.fromCallable(() -> session.textMessage(message)))
+                )
+                .then(
+                    Mono
+                        .fromRunnable(() -> logger.info("Client({}) -> sent: [{}]", session.getId(), message))
                 );
     }
 
-    private Flux<WebSocketMessage> receiveMessages(WebSocketSession session) {
+    private Flux<WebSocketMessage> receiveAll(WebSocketSession session) {
         return
             session
                 .receive()
-                .doOnNext(message -> logger.info("Client({}) -> received: [{}]", session.getId(), message));
+                .doOnNext(message -> logger.info("Client({}) -> received: [{}]", session.getId(), message.getPayloadAsText()));
     }
 }

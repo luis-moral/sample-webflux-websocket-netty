@@ -7,7 +7,6 @@ import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
-import sample.webflux.websocket.netty.server.ServerHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +17,12 @@ public class ServerConfiguration {
     @Value("${sample.path}")
     private String samplePath;
 
+    @Value("${sample.send-interval}")
+    private long sendInterval;
+
     @Bean
     public ServerHandler serverHandler() {
-        return new ServerHandler();
+        return new ServerHandler(sendInterval);
     }
 
     @Bean

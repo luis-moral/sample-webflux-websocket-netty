@@ -7,6 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Mono;
 
@@ -20,9 +21,6 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
     @Autowired
     private ConfigurableApplicationContext applicationContext;
 
-    @Autowired
-    private WebSocketClient webSocketClient;
-
     @Value("${server.port}")
     private int serverPort;
 
@@ -31,6 +29,8 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        WebSocketClient webSocketClient = new ReactorNettyWebSocketClient();
+
         Client clientOne = new Client();
         Client clientTwo = new Client();
 
