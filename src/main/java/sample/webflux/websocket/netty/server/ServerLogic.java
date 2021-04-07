@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +40,6 @@ public class ServerLogic {
         return
             Flux
                 .interval(Duration.ofMillis(interval))
-                .subscribeOn(Schedulers.boundedElastic())
                 .map(value -> Long.toString(value))
                 .flatMap(message ->
                     session
