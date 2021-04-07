@@ -13,7 +13,7 @@ public class ClientLogic {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static AtomicInteger MESSAGE_ID;
+    private final static AtomicInteger MESSAGE_ID;
 
     static {
         MESSAGE_ID = new AtomicInteger(0);
