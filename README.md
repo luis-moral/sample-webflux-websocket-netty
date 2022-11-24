@@ -1,10 +1,10 @@
-# Spring Boot 2.4 WebFlux Reactive WebSocket client and server #
+# Spring Boot 2.7 WebFlux Reactive WebSocket client and server #
 
 Sample project using **spring-boot-webflux** with **reactor-netty** reactive websocket client and server. The target of the code is to provide a sample on how to directly use WebSocketHandler handle method to receive the messages and publish them to a Flux which the business logic can consume and process as needed. 
 
 ## Start ##
 
-To start the sample just run `gradlew bootRun`.
+To start the sample just run `./gradlew bootRun`
 
 ## Message ##
 
