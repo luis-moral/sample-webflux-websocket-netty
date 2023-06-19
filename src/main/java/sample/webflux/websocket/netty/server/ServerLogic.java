@@ -32,8 +32,8 @@ public class ServerLogic {
                 .map(WebSocketMessage::getPayloadAsText)
                 .doOnNext(message -> logger.info("Server -> received from client id=[{}]: [{}]", session.getId(), message))
                 .filter(message -> newClient.get())
-                .flatMap(message -> sendAtInterval(session, interval))
                 .doOnNext(message -> newClient.set(false))
+                .flatMap(message -> sendAtInterval(session, interval))
                 .then();
     }
 
