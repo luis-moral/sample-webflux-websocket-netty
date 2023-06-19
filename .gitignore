@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### Logs ###
-sample-webflux-websocket-netty.log*
+log/

@@ -2,6 +2,7 @@ package sample.webflux.websocket.netty.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,7 +29,7 @@ public class ServerLogic {
                         logger.info("Server -> client connected id=[{}]", session.getId());
                     }
                 })
-                .map(message -> message.getPayloadAsText())
+                .map(WebSocketMessage::getPayloadAsText)
                 .doOnNext(message -> logger.info("Server -> received from client id=[{}]: [{}]", session.getId(), message))
                 .filter(message -> newClient.get())
                 .flatMap(message -> sendAtInterval(session, interval))

@@ -8,7 +8,7 @@ logging:
   level:
     root: INFO
   file:
-    name: sample-webflux-websocket-netty.log
+    name: log/sample-webflux-websocket-netty.log
 
 server:
   port: 8001

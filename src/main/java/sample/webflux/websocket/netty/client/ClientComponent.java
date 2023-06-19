@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
@@ -36,15 +35,18 @@ public class ClientComponent implements ApplicationListener<ApplicationReadyEven
         Client clientOne = new Client();
         Client clientTwo = new Client();
 
-        clientOne.start(webSocketClient, getURI());
-        clientTwo.start(webSocketClient, getURI());
+        clientOne.connect(webSocketClient, getURI());
+        clientTwo.connect(webSocketClient, getURI());
+
+        new ClientLogic().doLogic(clientOne);
+        new ClientLogic().doLogic(clientTwo);
 
         Mono
             .delay(Duration.ofSeconds(10))
             .publishOn(Schedulers.boundedElastic())
             .subscribe(value -> {
-                clientOne.stop();
-                clientTwo.stop();
+                clientOne.disconnect();
+                clientTwo.disconnect();
 
                 SpringApplication.exit(applicationContext, () -> 0);
             });
